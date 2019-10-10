@@ -8,14 +8,30 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
 @TeleOp(name="temp", group="Iterative Opmode")
 @Disabled
 public class TempMain extends OpMode {
+
+    //degrees arm movement per encoder tick (incl gears between motors and arm)
+    private final double LOWERARM_MOTOR_DEG_PER_TICK = 360.0/537.6;
+    private final double UPPERARM_MOTOR_DEG_PER_TICK = 360.0/537.6;
+    //lengths of arm segments
+    private final double LOWERARM_LENGTH = 30.0;
+    private final double UPPERARM_LENGTH = 20.0;
+    //maximum reach of arm
+    private final double MAXREACH = LOWERARM_LENGTH + UPPERARM_LENGTH;
+    private final double MINREACH = LOWERARM_LENGTH - UPPERARM_LENGTH;
+
+    private final int ARM_STOPPED = 0;
+    private final int ARM_RUNNING = 1;
+    private final int ARM_CANNOT_REACH = 2;
+
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor lowerMotor = null;
     private DcMotor upperMotor1 = null;
     private DcMotor upperMotor2 = null;
+
+    int armStatus;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -58,7 +74,11 @@ public class TempMain extends OpMode {
         lowerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         upperMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         upperMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+    }
+
+    private double targetX = 0.0;
+    private double targetY = MINREACH;
+
 
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
@@ -66,13 +86,32 @@ public class TempMain extends OpMode {
     @Override
     public void loop() {
 
-        lowerMotor.setTargetPosition(0);
-        upperMotor1.setTargetPosition(0);
-        upperMotor2.setTargetPosition(0);
+        //change target by left stick
+        targetX += gamepad1.left_stick_x;
+        targetY += gamepad1.left_stick_y;
+
+        double targetDist = Math.sqrt(targetX * targetX + targetY * targetY);
+        if(targetDist > MAXREACH || targetDist < MINREACH) {
+            armStatus = ARM_CANNOT_REACH * armStatus; //if not running this will remain ARM_STOPPED, if running this will be ARM_CANNOT_REACH
+        }
+
+        if(armStatus != ARM_RUNNING) {
+            //if stopped, do not move. NOTE: maybe i should use the motor stopped mode here? not sure if it is bad to do that in loop() though...
+            lowerMotor.setTargetPosition(lowerMotor.getCurrentPosition());
+            upperMotor1.setTargetPosition(upperMotor1.getCurrentPosition());
+            upperMotor2.setTargetPosition(upperMotor2.getCurrentPosition());
+        } else {
+            //IK!
+
+
+        }
+
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motor encoder ticks", "lower (%.2f), upper 1 (%.2f), upper 2 (%.2f)", lowerMotor.getCurrentPosition(), upperMotor1.getCurrentPosition(), upperMotor2.getCurrentPosition());
+        //show target X,Y
+        telemetry.addData("Target x,y", "x:(%.2f), y:(%.2f)", targetX, targetY);
 
     }
 
