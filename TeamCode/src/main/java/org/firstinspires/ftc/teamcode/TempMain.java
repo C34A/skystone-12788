@@ -13,6 +13,7 @@ public class TempMain extends OpMode {
 
     //uses positional IK control if true, uses angle based control if false.
     private boolean positionalControl = false;
+    private double POS_CNTRL_SPEED = 1.0;
 
     //degrees arm movement per encoder tick (incl gears between motors and arm)
     private final double LOWERARM_MOTOR_DEG_PER_TICK = 360.0 / 3892;
@@ -24,9 +25,11 @@ public class TempMain extends OpMode {
     private final double MAXREACH = LOWERARM_LENGTH + UPPERARM_LENGTH;
     private final double MINREACH = LOWERARM_LENGTH - UPPERARM_LENGTH;
 
+    //starting stowed angles of the arm
     private final double INITIAL_LOWERANGLE = 40.0;
     private final double INITIAL_UPPERANGLE = -130.0;
 
+    //coordinates of a position to go to after deploying that will not cause problems
     private final double INITIAL_UNSTOW_POS_X = 24.0;
     private final double INITIAL_UNSTOW_POS_Y = 10.0;
 
@@ -105,8 +108,8 @@ public class TempMain extends OpMode {
         }
 
         if(positionalControl) {
-            targetX += gamepad1.left_stick_x;
-            targetY += gamepad1.left_stick_y;
+            targetX += gamepad1.left_stick_x * (1 / gamepad1.left_trigger) * POS_CNTRL_SPEED;
+            targetY += gamepad1.left_stick_y * (1 / gamepad1.left_trigger) * POS_CNTRL_SPEED;
         } else {
             //change target by left stick
             lowerTargetAngle += gamepad1.left_stick_y;
@@ -137,8 +140,7 @@ public class TempMain extends OpMode {
 
             }
         } else if(armStatus == ArmMode.RUNNING) {
-            //todo: inverse kinematics code here!
-            //double angle1 = Math.acos(()/(-2*))
+
             if(positionalControl) {
                 //the angle between a direct line to the target point from the base of the arm
                 double D1 = Math.atan2(targetY, targetX);
