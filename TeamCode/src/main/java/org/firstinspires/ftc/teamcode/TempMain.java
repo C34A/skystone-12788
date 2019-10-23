@@ -27,6 +27,9 @@ public class TempMain extends OpMode {
     private final double INITIAL_LOWERANGLE = 40.0;
     private final double INITIAL_UPPERANGLE = -130.0;
 
+    private final double INITIAL_UNSTOW_POS_X = 24.0;
+    private final double INITIAL_UNSTOW_POS_Y = 10.0;
+
     private enum ArmMode {
         STOPPED, RUNNING, CANNOT_REACH, INIT_UNSTOW, DUCK
     }
@@ -81,8 +84,8 @@ public class TempMain extends OpMode {
         upperMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    private double targetX = 24.0;
-    private double targetY = 10.0;
+    private double targetX = INITIAL_UNSTOW_POS_X;
+    private double targetY = INITIAL_UNSTOW_POS_Y;
 
     private double lowerTargetAngle = 40.0;
     private double upperTargetAngle = -130.0;
@@ -128,6 +131,10 @@ public class TempMain extends OpMode {
                 lowerMotor.setTargetPosition((int) Math.round((90.0 - INITIAL_LOWERANGLE) / LOWERARM_MOTOR_DEG_PER_TICK));
             } else {
                 armStatus = ArmMode.STOPPED;
+                //unnecessary, but just to make fully sure that the arm doesn't do anything crazy immediately.
+                targetX = INITIAL_UNSTOW_POS_X;
+                targetY = INITIAL_UNSTOW_POS_Y;
+
             }
         } else if(armStatus == ArmMode.RUNNING) {
             //todo: inverse kinematics code here!
@@ -149,8 +156,8 @@ public class TempMain extends OpMode {
             }
 
             //run to angle
-            int lowerTargetTicks = (int) Math.round(lowerTargetAngle / LOWERARM_MOTOR_DEG_PER_TICK);
-            int upperTargetTicks = (int) Math.round(upperTargetAngle / UPPERARM_MOTOR_DEG_PER_TICK);
+            int lowerTargetTicks = (int) Math.round((lowerTargetAngle - INITIAL_LOWERANGLE) / LOWERARM_MOTOR_DEG_PER_TICK);
+            int upperTargetTicks = (int) Math.round((upperTargetAngle - INITIAL_UPPERANGLE) / UPPERARM_MOTOR_DEG_PER_TICK);
 
             lowerMotor.setTargetPosition(lowerTargetTicks);
             upperMotor1.setTargetPosition(upperTargetTicks);
