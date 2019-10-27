@@ -71,6 +71,7 @@ private PVector[] doIKForDist(float x, float y, int dist) {
         angle1 = PI;
     }
     angle2 = atan2(Y - LEN1, X);
+    int i = 0;
     while (distance(PVector.add(end, middle), x, y) > 5) {
         /*println("iter", frameCount, ":", middle, PVector.add(middle, end), x);
          println("iter", frameCount, ":", angle1, angle2, distance(PVector.add(end, middle), x, y));
@@ -85,7 +86,10 @@ private PVector[] doIKForDist(float x, float y, int dist) {
         //update positions
         middle.rotate(angle1 - middle.heading());
         end.rotate(angle2 - end.heading());
+        i++;
     }
-    println("time", millis() - before, "\n");
+    println("millis:", millis() - before
+    );
+    println("iterations taken:", i);
     return new PVector[] {middle, end};
 }
