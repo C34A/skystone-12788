@@ -26,11 +26,14 @@ void draw() {
     circle(X, Y, 10);
     //circle(end.x + middle.x, end.y + middle.y, LEN2 * 2);
     stroke(0, 255, 0);
-    
-    PVector[] points = doIKForDist(X, Y, 5);
-    line(0, 0, points[0].x, points[0].y);
-    stroke(255, 0, 0);
-    line(points[0].x, points[0].y, points[1].x + points[0].x, points[1].y + points[0].y);
+    try{
+        PVector[] points = doIKForDist((mouseX - width / 2), (height / 2 - mouseY), 5);
+        line(0, 0, points[0].x, points[0].y);
+        stroke(255, 0, 0);
+        line(points[0].x, points[0].y, points[1].x + points[0].x, points[1].y + points[0].y);
+    } catch (Exception e) {
+        println(e);
+    }
 }
 
 void mouseClicked() {
