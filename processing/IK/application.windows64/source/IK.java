@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class sketch_191026a extends PApplet {
+public class IK extends PApplet {
 
 final float LEN1 = 100.0f;
 final float LEN2 = 100.0f;
@@ -42,11 +42,14 @@ public void draw() {
     circle(X, Y, 10);
     //circle(end.x + middle.x, end.y + middle.y, LEN2 * 2);
     stroke(0, 255, 0);
-    
-    PVector[] points = doIKForDist(X, Y, 5);
-    line(0, 0, points[0].x, points[0].y);
-    stroke(255, 0, 0);
-    line(points[0].x, points[0].y, points[1].x + points[0].x, points[1].y + points[0].y);
+    try{
+        PVector[] points = doIKForDist((mouseX - width / 2), (height / 2 - mouseY), 5);
+        line(0, 0, points[0].x, points[0].y);
+        stroke(255, 0, 0);
+        line(points[0].x, points[0].y, points[1].x + points[0].x, points[1].y + points[0].y);
+    } catch (Exception e) {
+        println(e);
+    }
 }
 
 public void mouseClicked() {
@@ -87,6 +90,7 @@ private PVector[] doIKForDist(float x, float y, int dist) {
         angle1 = PI;
     }
     angle2 = atan2(Y - LEN1, X);
+    int i = 0;
     while (distance(PVector.add(end, middle), x, y) > 5) {
         /*println("iter", frameCount, ":", middle, PVector.add(middle, end), x);
          println("iter", frameCount, ":", angle1, angle2, distance(PVector.add(end, middle), x, y));
@@ -101,14 +105,16 @@ private PVector[] doIKForDist(float x, float y, int dist) {
         //update positions
         middle.rotate(angle1 - middle.heading());
         end.rotate(angle2 - end.heading());
+        i++;
     }
-    println("time", millis() - before, "\n");
+    println("millis:", millis() - before
+    );
+    println("iterations taken:", i);
     return new PVector[] {middle, end};
 }
-
     public void settings() {  size(800, 800); }
     static public void main(String[] passedArgs) {
-        String[] appletArgs = new String[] { "--present", "--window-color=#666666", "--stop-color=#cccccc", "sketch_191026a" };
+        String[] appletArgs = new String[] { "--present", "--window-color=#666666", "--stop-color=#cccccc", "IK" };
         if (passedArgs != null) {
           PApplet.main(concat(appletArgs, passedArgs));
         } else {

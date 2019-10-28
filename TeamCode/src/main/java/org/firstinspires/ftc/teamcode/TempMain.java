@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+//import org.firstinspires.ftc.teamcode.PVector;
 
-@TeleOp(name="temp", group="Iterative Opmode")
+
+@TeleOp(name="arm", group="Iterative Opmode")
 @Disabled
 public class TempMain extends OpMode {
 
@@ -142,6 +144,9 @@ public class TempMain extends OpMode {
         } else if(armStatus == ArmMode.RUNNING) {
 
             if(positionalControl) {
+                /*
+                <<<<DO NOT USE>>>>
+
                 //the angle between a direct line to the target point from the base of the arm
                 double D1 = Math.atan2(targetY, targetX);
                 //the angle between the lower arm section and D1
@@ -155,6 +160,10 @@ public class TempMain extends OpMode {
 
                 lowerTargetAngle = lowerSectionAngle;
                 upperTargetAngle = upperAbsoluteAngle;
+
+                 */
+
+
             }
 
             //run to angle
@@ -184,6 +193,53 @@ public class TempMain extends OpMode {
      */
     @Override
     public void stop() {
+    }
+
+    private PVector[] doIKForDist(float x, float y, int dist) {
+        if(distance(x, y) < LOWERARM_LENGTH - UPPERARM_LENGTH || distance(x, y) > LOWERARM_LENGTH + UPPERARM_LENGTH) {
+            throw new IllegalArgumentException("cannot reach given coordinates");
+        }
+
+        //long before = millis();
+        float angle1;
+        float angle2;
+        PVector middle = new PVector(LOWERARM_LENGTH, 0);
+        PVector end = new PVector(UPPERARM_LENGTH, 0);
+
+        if (x < 0) {
+            angle1 = 0;
+        } else {
+            angle1 = Math.PI;
+        }
+        angle2 = Math.atan2(Y - LOWERARM_LENGTH, X);
+        int i = 0;
+        while (distance(PVector.add(end, middle), x, y) > 5) {
+        /*println("iter", frameCount, ":", middle, PVector.add(middle, end), x);
+         println("iter", frameCount, ":", angle1, angle2, distance(PVector.add(end, middle), x, y));
+         println();*/
+            if (x > 0) {
+                angle1 -= Math.PI / 180;
+            } else {
+                angle1 += Math.PI / 180;
+            }
+            angle2 = Math.atan2(y - Math.sin(angle1) * LOWERARM_LENGTH, x - LOWERARM_LENGTH * Math.cos(angle1));
+
+            //update positions
+            middle.rotate(angle1 - middle.heading());
+            end.rotate(angle2 - end.heading());
+            i++;
+        }
+        //println("millis:", millis() - before);
+        //println("iterations taken:", i);
+        return new PVector[] {middle, end};
+    }
+
+    double distance(float x, float y) {
+        return Math.sqrt(x*x + y*y);
+    }
+
+    double distance(PVector p, float x, float y) {
+        return PVector.sub(p, new PVector(x, y)).mag();
     }
 
 }
