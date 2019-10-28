@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-//import org.firstinspires.ftc.teamcode.PVector;
+import PVector;
 
 
 @TeleOp(name="arm", group="Iterative Opmode")
@@ -195,14 +195,14 @@ public class TempMain extends OpMode {
     public void stop() {
     }
 
-    private PVector[] doIKForDist(float x, float y, int dist) {
+    private PVector[] doIKForDist(double x, double y, int dist) {
         if(distance(x, y) < LOWERARM_LENGTH - UPPERARM_LENGTH || distance(x, y) > LOWERARM_LENGTH + UPPERARM_LENGTH) {
             throw new IllegalArgumentException("cannot reach given coordinates");
         }
 
         //long before = millis();
-        float angle1;
-        float angle2;
+        double angle1;
+        double angle2;
         PVector middle = new PVector(LOWERARM_LENGTH, 0);
         PVector end = new PVector(UPPERARM_LENGTH, 0);
 
@@ -211,8 +211,8 @@ public class TempMain extends OpMode {
         } else {
             angle1 = Math.PI;
         }
-        angle2 = Math.atan2(Y - LOWERARM_LENGTH, X);
-        int i = 0;
+        angle2 = Math.atan2(y - LOWERARM_LENGTH, x);
+        //int i = 0;
         while (distance(PVector.add(end, middle), x, y) > 5) {
         /*println("iter", frameCount, ":", middle, PVector.add(middle, end), x);
          println("iter", frameCount, ":", angle1, angle2, distance(PVector.add(end, middle), x, y));
@@ -227,14 +227,18 @@ public class TempMain extends OpMode {
             //update positions
             middle.rotate(angle1 - middle.heading());
             end.rotate(angle2 - end.heading());
-            i++;
+            //i++;
         }
         //println("millis:", millis() - before);
         //println("iterations taken:", i);
         return new PVector[] {middle, end};
     }
 
-    double distance(float x, float y) {
+    /*double distance(float x, float y) {
+        return Math.sqrt(x*x + y*y);
+    }*/
+
+    double distance(double x, double y) {
         return Math.sqrt(x*x + y*y);
     }
 

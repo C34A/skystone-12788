@@ -73,7 +73,7 @@ private PVector[] doIKForDist(float x, float y, int dist) {
     } else {
         angle1 = PI;
     }
-    angle2 = atan2(Y - LEN1, X);
+    angle2 = atan2(y - LEN1, x);
     int i = 0;
     while (distance(PVector.add(end, middle), x, y) > 5) {
         /*println("iter", frameCount, ":", middle, PVector.add(middle, end), x);
