@@ -94,5 +94,6 @@ private PVector[] doIKForDist(float x, float y, int dist) {
     println("millis:", millis() - before
     );
     println("iterations taken:", i);
+    println(middle, end);
     return new PVector[] {middle, end};
 }

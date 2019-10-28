@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import PVector;
+//import PVector;
 
 
 @TeleOp(name="arm", group="Iterative Opmode")
@@ -15,7 +15,7 @@ public class TempMain extends OpMode {
 
     //uses positional IK control if true, uses angle based control if false.
     private boolean positionalControl = false;
-    private double POS_CNTRL_SPEED = 1.0;
+    private double POS_CNTRL_SPEED = 0.1;
 
     //degrees arm movement per encoder tick (incl gears between motors and arm)
     private final double LOWERARM_MOTOR_DEG_PER_TICK = 360.0 / 3892;
@@ -94,7 +94,7 @@ public class TempMain extends OpMode {
 
     private double lowerTargetAngle = 40.0;
     private double upperTargetAngle = -130.0;
-
+    private double prevMillis;
     /*
      * Code to run REPEATEDLY after the driver hits PLAY but before they hit STOP
      */
@@ -110,8 +110,11 @@ public class TempMain extends OpMode {
         }
 
         if(positionalControl) {
-            targetX += gamepad1.left_stick_x * (1 / gamepad1.left_trigger) * POS_CNTRL_SPEED;
-            targetY += gamepad1.left_stick_y * (1 / gamepad1.left_trigger) * POS_CNTRL_SPEED;
+            double deltaTime = prevMillis - runtime.seconds();
+            prevMillis = runtime.milliseconds();
+
+            targetX += gamepad1.left_stick_x * (gamepad1.left_trigger) * POS_CNTRL_SPEED * deltaTime;
+            targetY += gamepad1.left_stick_y * (gamepad1.left_trigger) * POS_CNTRL_SPEED * deltaTime;
         } else {
             //change target by left stick
             lowerTargetAngle += gamepad1.left_stick_y;
@@ -132,7 +135,7 @@ public class TempMain extends OpMode {
             upperMotor1.setTargetPosition(upperMotor1.getCurrentPosition());
             upperMotor2.setTargetPosition(upperMotor2.getCurrentPosition());
         } else if(armStatus == ArmMode.INIT_UNSTOW) {
-            if(runtime.seconds() < 2.5) {
+            if(runtime.seconds() < 1.0) {
                 lowerMotor.setTargetPosition((int) Math.round((90.0 - INITIAL_LOWERANGLE) / LOWERARM_MOTOR_DEG_PER_TICK));
             } else {
                 armStatus = ArmMode.STOPPED;
@@ -162,7 +165,9 @@ public class TempMain extends OpMode {
                 upperTargetAngle = upperAbsoluteAngle;
 
                  */
-
+                PVector[] points = doIKForDist(targetX, targetY, 0.5);
+                lowerTargetAngle = Math.atan2(points[0].y, points[0].x);
+                upperTargetAngle = Math.atan2(points[1].y, points[1].x);
 
             }
 
@@ -195,7 +200,7 @@ public class TempMain extends OpMode {
     public void stop() {
     }
 
-    private PVector[] doIKForDist(double x, double y, int dist) {
+    private PVector[] doIKForDist(double x, double y, double dist) {
         if(distance(x, y) < LOWERARM_LENGTH - UPPERARM_LENGTH || distance(x, y) > LOWERARM_LENGTH + UPPERARM_LENGTH) {
             throw new IllegalArgumentException("cannot reach given coordinates");
         }
@@ -242,7 +247,7 @@ public class TempMain extends OpMode {
         return Math.sqrt(x*x + y*y);
     }
 
-    double distance(PVector p, float x, float y) {
+    double distance(PVector p, double x, double y) {
         return PVector.sub(p, new PVector(x, y)).mag();
     }
 
