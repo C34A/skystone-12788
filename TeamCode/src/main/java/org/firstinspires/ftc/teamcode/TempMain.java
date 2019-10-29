@@ -18,8 +18,8 @@ public class TempMain extends OpMode {
     private double POS_CNTRL_SPEED = 0.1;
 
     //degrees arm movement per encoder tick (incl gears between motors and arm)
-    private final double LOWERARM_MOTOR_DEG_PER_TICK = 360.0 / 3892;
-    private final double UPPERARM_MOTOR_DEG_PER_TICK = 360.0 / 537.6;
+    private final double LOWERARM_MOTOR_DEG_PER_TICK = 973 / 360.0;
+    private final double UPPERARM_MOTOR_DEG_PER_TICK = 356.3 / 360.0;
     //lengths of arm segments, inches
     private final double LOWERARM_LENGTH = 21.075;
     private final double UPPERARM_LENGTH = 17.625;
